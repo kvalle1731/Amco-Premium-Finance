@@ -1,83 +1,92 @@
 'use strict';
-const menuButton = document.getElementById('menu-toggle');
-const menu = document.getElementById('primary-nav');
-function closeMenu(){ menu.classList.remove('is-open'); menuButton.setAttribute('aria-expanded','false'); menuButton.setAttribute('aria-label','Open menu'); }
-menuButton.addEventListener('click', () => {
-  const open = menu.classList.toggle('is-open');
-  menuButton.setAttribute('aria-expanded',String(open));
-  menuButton.setAttribute('aria-label',open?'Close menu':'Open menu');
+const $ = id => document.getElementById(id);
+const mobileToggle = $('mobile-toggle');
+const nav = $('site-nav');
+mobileToggle?.addEventListener('click', () => {
+  const opened = mobileToggle.getAttribute('aria-expanded') !== 'true';
+  mobileToggle.setAttribute('aria-expanded', String(opened));
+  mobileToggle.setAttribute('aria-label', opened ? 'Close navigation' : 'Open navigation');
+  nav.classList.toggle('open', opened);
 });
-menu.querySelectorAll('a').forEach(link => link.addEventListener('click',closeMenu));
-document.addEventListener('keydown',event=>{if(event.key==='Escape') closeMenu();});
-document.getElementById('copyright-year').textContent=String(new Date().getFullYear());
-
-const form=document.getElementById('finance-form');
-const stepOne=document.getElementById('step-one');
-const stepTwo=document.getElementById('step-two');
-const stepIndicator=document.getElementById('step-indicator');
-const progressOne=document.getElementById('progress-1');
-const progressTwo=document.getElementById('progress-2');
-const status=document.getElementById('form-message');
-function clearMessage(){status.textContent='';status.classList.remove('is-error');}
-function validFields(fieldset){
-  clearMessage();
-  const fields=[...fieldset.querySelectorAll('[required]')];
-  for(const field of fields){
-    field.setAttribute('aria-invalid',String(!field.checkValidity()));
-    if(!field.checkValidity()){
-      status.textContent='Please complete the highlighted fields to continue.';
-      status.classList.add('is-error');
-      field.reportValidity(); field.focus(); return false;
-    }
-  }
-  return true;
+nav?.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  nav.classList.remove('open');
+  mobileToggle.setAttribute('aria-expanded', 'false');
+}));
+const usd = n => new Intl.NumberFormat('en-US', {style:'currency', currency:'USD', minimumFractionDigits:0, maximumFractionDigits:0}).format(n);
+const premium = $('premium-input');
+const downRange = $('down-range');
+function updateIllustration() {
+  const amount = Math.min(10000000, Math.max(0, Number(premium.value) || 0));
+  const percent = Number(downRange.value);
+  const initial = amount * percent / 100;
+  $('down-percent').textContent = `${percent}%`;
+  $('down-amount').textContent = usd(initial);
+  $('finance-amount').textContent = usd(amount - initial);
+  $('down-bar').style.width = percent + '%';
+  $('financed-bar').style.width = (100-percent) + '%';
+  downRange.style.setProperty('--range-progress', percent + '%');
 }
-function gotoStep(n){
-  stepOne.hidden=n!==1; stepTwo.hidden=n!==2;
-  stepIndicator.textContent='STEP 0'+n+' / 02';
-  progressOne.classList.toggle('is-active',n===1);
-  progressTwo.classList.toggle('is-active',n===2);
-  clearMessage();
-  const focusable=n===1?document.getElementById('policy-type'):document.getElementById('contact-name');
-  focusable.focus({preventScroll:true});
-  document.getElementById('request').scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
+premium?.addEventListener('input', updateIllustration);
+downRange?.addEventListener('input', updateIllustration);
+updateIllustration();
+const audienceItems = [...document.querySelectorAll('.audience-item')];
+audienceItems.forEach(item => {
+  const button = item.querySelector('.audience-trigger');
+  button.addEventListener('click', () => {
+    audienceItems.forEach(other => {
+      const active = other === item;
+      other.classList.toggle('active', active);
+      other.querySelector('.audience-trigger').setAttribute('aria-expanded', String(active));
+      other.querySelector('.audience-panel').hidden = !active;
+      other.querySelector('.audience-indicator').textContent = active ? '↗' : '+';
+    });
+  });
+});
+const form = $('finance-form');
+const first = $('form-step-one');
+const second = $('form-step-two');
+const meter = $('meter-fill');
+function showStep(step) {
+  first.hidden = step !== 1;
+  second.hidden = step !== 2;
+  $('step-label').textContent = `STEP 0${step} / 02`;
+  meter.style.width = step === 1 ? '50%' : '100%';
+  if(step === 2) second.querySelector('input').focus({ preventScroll:true });
+  form.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'instant' : 'smooth',block:'center'});
 }
-document.getElementById('continue-button').addEventListener('click',()=>{if(validFields(stepOne)) gotoStep(2);});
-document.getElementById('back-button').addEventListener('click',()=>gotoStep(1));
-for (const link of document.querySelectorAll('[data-policy]')){
-  link.addEventListener('click',()=>{document.getElementById('policy-type').value=link.dataset.policy;});
-}
-for (const link of document.querySelectorAll('[data-role]')){
-  link.addEventListener('click',()=>{document.getElementById('contact-role').value=link.dataset.role;});
-}
-function cleaned(input,max){return String(input||'').replace(/[\r\n\t]+/g,' ').trim().slice(0,max);}
-form.addEventListener('submit',event=>{
+$('next-step').addEventListener('click', () => {
+  const valid = $('field-type').value && $('field-state').value;
+  $('step-one-error').hidden = !!valid;
+  if (valid) showStep(2);
+  else (!$('field-type').value ? $('field-type') : $('field-state')).focus();
+});
+$('previous-step').addEventListener('click', () => showStep(1));
+document.querySelectorAll('[data-audience]').forEach(a => a.addEventListener('click', () => { $('audience-select').value = a.dataset.audience; }));
+form.addEventListener('submit', event => {
   event.preventDefault();
-  if(!validFields(stepOne)){gotoStep(1);return;}
-  if(!validFields(stepTwo))return;
-  const values=Object.fromEntries(new FormData(form).entries());
-  const money=Number(values.premium);
-  if(!Number.isFinite(money)||money<=0){gotoStep(1);status.textContent='Enter a valid positive premium amount.';status.classList.add('is-error');return;}
-  const lines=[
-    'Hello AMCO team,','',
-    'I would like to request a preliminary insurance premium financing review.','',
-    'POLICY DETAILS',
-    'Policy type: '+cleaned(values.policyType,80),
-    'State: '+cleaned(values.policyState,35),
-    'Estimated total premium: '+new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(money),
-    'Effective date: '+cleaned(values.effectiveDate,20),'',
-    'CONTACT DETAILS',
-    'Contact: '+cleaned(values.contactName,100),
-    'Email: '+cleaned(values.email,160),
-    'Role: '+cleaned(values.contactRole,70),
-    'Organization: '+cleaned(values.organization,140),
-    'Additional question: '+cleaned(values.note,350),'',
-    'This is an inquiry, not a formal application or financing approval.','',
-    'Prepared through the AMCO website. No request has been submitted automatically.'
+  const name = form.elements.namedItem('name');
+  const email = form.elements.namedItem('email');
+  const valid = name.value.trim() && email.validity.valid && email.value.trim();
+  $('step-two-error').hidden = !!valid;
+  if (!valid) {(!name.value.trim() ? name : email).focus();return;}
+  const f = new FormData(form);
+  const lines = [
+    'Hello AMCO Premium Finance,', '',
+    'I would like to begin a financing inquiry.', '',
+    `Policy type: ${f.get('policyType')}`,
+    `State: ${f.get('state')}`,
+    `Premium amount: ${f.get('premium') ? usd(Number(f.get('premium'))) : 'Not provided'}`,
+    `Policy effective date: ${f.get('effectiveDate') || 'Not provided'}`, '',
+    `Name: ${String(f.get('name') || '').trim()}`,
+    `Email: ${String(f.get('email') || '').trim()}`,
+    `I am a: ${f.get('audience')}`,
+    `Company: ${f.get('company') || 'Not provided'}`,
+    `Additional note: ${f.get('message') || 'None'}`, '',
+    'Please advise on next steps for reviewing financing eligibility and terms.'
   ];
-  const subject='AMCO premium finance inquiry: '+cleaned(values.policyType,65);
-  const url='mailto:info@amcopremium.com?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(lines.join('\n'));
-  status.textContent='Your email app should open with a prepared request. Review it, then send it to AMCO. Nothing has been submitted automatically.';
-  status.classList.remove('is-error');
-  window.location.href=url;
+  const subject = 'AMCO Premium Finance | Financing inquiry';
+  const mailto = `mailto:info@amcopremium.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
+  $('form-status').textContent = 'Your email application should open with a prepared inquiry. Please review and send it there. Nothing has been submitted automatically.';
+  window.location.href = mailto;
 });
+$('year').textContent = new Date().getFullYear().toString();

@@ -1,28 +1,21 @@
-# AMCO Premium Finance website
+# AMCO Premium Finance — Editorial Financial Workspace
 
-Luxury fintech homepage and preliminary premium financing inquiry experience for AMCO Premium Finance.
+This is a standalone, static site concept for AMCO Premium Finance, separate in design and content from RAMCO Insurance.
 
-## Staging
+## Architecture
 
-The `staging` branch contains the redesigned static website. On Vercel, connect this GitHub repository and enable preview deployments for the `staging` branch. Framework: **Other**. Root directory: `./`. No build command, runtime secrets, or database are required.
+The homepage deliberately avoids the conventional insurance landing page sequence. It begins with an interactive illustration of a premium's initial payment and remaining balance, moves through an editorial statement of AMCO's role, uses an audience accordion in place of a three-card menu, lists financing types as a financial ledger, and provides a progressively revealed inquiry.
 
-## Included
+## Running the site
 
-- Original AMCO logo artwork rendered with a transparent background. No redrawing, recoloring, or changes to the logo artwork.
-- Dark luxury homepage and responsive navigation.
-- Distinct agency, carrier/MGA, and policyholder pathways.
-- Commercial, auto, and homeowners premium financing solution sections.
-- Four-stage educational process and FAQs.
-- Two-stage inquiry form with client-side validation. On completion, an email draft opens locally in the visitor's email application; **no data is sent or stored by the website**. The visitor must send the draft.
+Serve the repository root as static files, for example with `python -m http.server 8000`, then visit `http://localhost:8000`.
 
-## Not included
+For Vercel, use the **Other** framework, repository root as root directory and no build command. The `staging` branch is the intended review branch and includes an X-Robots-Tag to discourage search indexing.
 
-The website does not accept payments, calculate binding finance terms, approve applications, generate finance agreements, perform credit checks, or offer a client account portal. These require verified legal/compliance, backend services, and approved secure integrations before activation.
+## Branding
 
-## Security and compliance
+`assets/amco-logo-transparent.webp` preserves the official AMCO logo artwork and its colors. Only its white image background is made transparent, so it can sit on an ivory page without a bounding rectangle. Website colors and layout are deliberately different from RAMCO Insurance.
 
-Do not solicit SSNs, banking credentials, card numbers, or sensitive identity information through this static form. Licensing, state eligibility, privacy notices, finance agreements, rates, cancellation procedures, and servicing channels must be verified before accepting financing requests as formal applications.
+## Safety
 
-## Brand
-
-AMCO is presented as an independent brand. No affiliation with RAMCO Insurance is implied or claimed.
+The premium illustration is not a financing rate quote or installment calculation. It does not use interest rates or fees. The multi-step inquiry uses a `mailto:` link and does not transmit information to a server or store customer information. AMCO must establish approved financing procedures, licensing, legal documents, and secure servicing before enabling real financing applications or payments. No unverified company statistics or licensing claims are used.
