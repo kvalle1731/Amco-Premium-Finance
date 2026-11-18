@@ -2,3 +2,80 @@
 @media(max-width:540px){.ledger-row h3{grid-column:2;grid-row:1}.ledger-row .ledger-icon{grid-column:3;grid-row:1}.ledger-row p{grid-column:2;grid-row:2}}
 /* Keep the finance instrument centered without a competing decorative caption. */
 .instrument-caption{display:none}
+
+
+/* AMCO approved palette restoration | Editorial layout retained.
+   Forest ink #071a16, emerald #0b2822, champagne #d7ac65, ivory #f4f0e8.
+   All visual changes are limited to staging styles. */
+:root{
+  --paper:#f4f0e8;
+  --paper-soft:#fbfaf6;
+  --ink:#071a16;
+  --midnight:#071a16;
+  --midnight-soft:#0b2822;
+  --charcoal:#22483a;
+  --slate:#6a746d;
+  --muted:#66746c;
+  --line:#d9d1c2;
+  --bronze:#d7ac65;
+  --bronze-light:#efcf92;
+  --accent:#19543e;
+}
+body{background:var(--paper);color:var(--ink)}
+.upperline{background:#05150f;color:#b6bba9;border-bottom:1px solid rgba(215,172,101,.12)}
+.upperline-right span{color:#e0b66e}
+.header{background:#071a16;border-bottom:1px solid rgba(215,172,101,.22)}
+.nav>a:not(.nav-cta){color:#f4f0e8}
+.nav>a:not(.nav-cta):hover{color:#efcf92}
+.nav-cta{border:1px solid #d7ac65;color:#efcf92}
+.nav-cta:hover{background:#d7ac65;color:#071a16}
+.mobile-toggle{border-color:rgba(215,172,101,.65)}
+.mobile-toggle span{background:#efcf92}
+.hero{background:radial-gradient(ellipse at 32% 14%,rgba(27,84,61,.21),transparent 64%),#071a16;color:#f4f0e8}
+.hero-wash{background:radial-gradient(ellipse at 20% 8%,rgba(19,80,56,.26),transparent 66%)}
+.micro-label,.micro-count{color:#d4bd91}
+.label-mark{background:#d7ac65}
+.hero h1{color:#f4f0e8}
+.hero h1 em{color:#d7ac65}
+.hero-intro{color:#eee6d6}
+.hero-description{color:#bdc9c0}
+.button-dark{background:#d7ac65;color:#071a16}
+.button-dark:hover{background:#efcf92;color:#071a16}
+.text-link{color:#f0e9dc;border-bottom-color:#d7ac65}
+.text-link:hover{color:#efcf92}
+.hero-bottom p{color:#b5c2b8}
+.fine-rule{background:rgba(215,172,101,.72)}
+.hero-asterisk{color:#d7ac65}
+.instrument-wrap{background:radial-gradient(ellipse at 70% 16%,rgba(28,90,64,.47),transparent 60%),linear-gradient(140deg,#0c3528,#051913);border-left:1px solid rgba(215,172,101,.19)}
+.instrument-decor{border-color:rgba(215,172,101,.20)}
+.instrument{background:linear-gradient(155deg,rgba(31,77,57,.72),rgba(4,19,14,.88));border-color:rgba(215,172,101,.35);box-shadow:0 32px 65px rgba(1,12,8,.27)}
+.instrument-top,.instrument-heading h2 em,.instrument-symbol{color:#efcf92}
+.instrument-description,.instrument-disclaimer,.instrument-caption{color:#b4c8bb}
+.structure-financed{background:#2b7655}
+.hero-index{color:#c2c3ae;border-bottom-color:rgba(215,172,101,.32)}
+.manifesto{background:#0b2822;color:#f4f0e8}
+.manifesto h2 em,.manifesto-ornament{color:#d7ac65}
+.manifesto-right>span,.manifesto-kicker{color:#dfbd84}
+.manifesto-right p{color:#d9e0d7}
+.light-inline-link{color:#efcf92;border-bottom-color:#d7ac65}
+.audience{background:#fbfaf6}
+.audience h2,.solutions h2,.pathway h2,.inquiry-section h2,.questions h2{color:#071a16}
+.audience h2 em,.pathway h2 em,.inquiry-section h2 em,.questions h2 em{color:#98733d}
+.audience-trigger{color:#123429}
+.audience-item.active .audience-trigger{color:#136044}
+.audience-num,.audience-indicator{color:#ab804b}
+.interlude{background:#071a16}
+.interlude-image{background:linear-gradient(90deg,rgba(5,27,19,.98) 0%,rgba(5,34,24,.82) 42%,rgba(5,28,20,.08) 100%),url('assets/architectural-hero.webp') center 48%/cover no-repeat}
+.solutions{background:#f4f0e8}
+.ledger-row>span:first-child,.ledger-icon{color:#9f753e}
+.pathway{background:#e9e4da}
+.inquiry-section{background:#fbfaf6}
+.finance-form{background:#fffefa;border-color:#e3dbc9}
+.form-meter span{background:#cba462}
+.footer{background:#061a14;color:#f4f0e8}
+.footer-top>a:last-child,.footer-bottom a{color:#e4bd7d}
+.footer-bottom{border-top-color:rgba(215,172,101,.25);color:#b2beb5}
+@media (max-width: 850px){
+  .nav{background:#0b2822;box-shadow:0 20px 35px rgba(0,0,0,.32)}
+  .nav>a:not(.nav-cta){border-bottom-color:rgba(215,172,101,.17)}
+}
