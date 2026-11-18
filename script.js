@@ -1,113 +1,83 @@
-
 'use strict';
+const menuButton = document.getElementById('menu-toggle');
+const menu = document.getElementById('primary-nav');
+function closeMenu(){ menu.classList.remove('is-open'); menuButton.setAttribute('aria-expanded','false'); menuButton.setAttribute('aria-label','Open menu'); }
+menuButton.addEventListener('click', () => {
+  const open = menu.classList.toggle('is-open');
+  menuButton.setAttribute('aria-expanded',String(open));
+  menuButton.setAttribute('aria-label',open?'Close menu':'Open menu');
+});
+menu.querySelectorAll('a').forEach(link => link.addEventListener('click',closeMenu));
+document.addEventListener('keydown',event=>{if(event.key==='Escape') closeMenu();});
+document.getElementById('copyright-year').textContent=String(new Date().getFullYear());
 
-const audiences = {
-  agencies: {
-    kicker: 'FOR THE PROFESSIONALS BEHIND THE POLICY',
-    title: 'Give your clients a better way to say <em>yes.</em>',
-    description: 'Help clients evaluate premium financing alongside paying in full, while keeping your agency focused on service, placement and growth.',
-    benefits: ['Offer additional payment flexibility', 'Help simplify financing conversations', 'Keep the focus on serving your insureds'],
-    action: 'Talk about an agency partnership',
-    card: 'Agency partnership', sub: 'Purpose-built support'
-  },
-  carriers: {
-    kicker: 'FOR THE ORGANIZATIONS MOVING INSURANCE FORWARD',
-    title: 'Make payment flexibility part of the <em>experience.</em>',
-    description: 'Explore a thoughtful approach to premium finance collaboration with carriers, MGAs and insurance distribution partners.',
-    benefits: ['Discuss financing at the point of purchase', 'Consider partner-focused operational needs', 'Create a clearer journey for your distribution network'],
-    action: 'Discuss a carrier partnership',
-    card: 'Carrier collaboration', sub: 'Connected by design'
-  },
-  insureds: {
-    kicker: 'FOR THE PEOPLE PROTECTING WHAT MATTERS',
-    title: 'Your coverage matters. So does your <em>cash flow.</em>',
-    description: 'Understand how eligible insurance premiums may be paid over time, rather than all at once, through a formal financing agreement.',
-    benefits: ['Learn the basics in plain language', 'Understand the role of a down payment', 'Know what to review before signing an agreement'],
-    action: 'Ask about financing',
-    card: 'Policyholder options', sub: 'Clarity comes first'
+const form=document.getElementById('finance-form');
+const stepOne=document.getElementById('step-one');
+const stepTwo=document.getElementById('step-two');
+const stepIndicator=document.getElementById('step-indicator');
+const progressOne=document.getElementById('progress-1');
+const progressTwo=document.getElementById('progress-2');
+const status=document.getElementById('form-message');
+function clearMessage(){status.textContent='';status.classList.remove('is-error');}
+function validFields(fieldset){
+  clearMessage();
+  const fields=[...fieldset.querySelectorAll('[required]')];
+  for(const field of fields){
+    field.setAttribute('aria-invalid',String(!field.checkValidity()));
+    if(!field.checkValidity()){
+      status.textContent='Please complete the highlighted fields to continue.';
+      status.classList.add('is-error');
+      field.reportValidity(); field.focus(); return false;
+    }
   }
-};
-
-const tabs = [...document.querySelectorAll('.audience-tab')];
-function activateAudience(name, focus = false) {
-  const data = audiences[name];
-  if (!data) return;
-  tabs.forEach(tab => {
-    const selected = tab.dataset.audience === name;
-    tab.classList.toggle('active', selected);
-    tab.setAttribute('aria-selected', String(selected));
-    tab.tabIndex = selected ? 0 : -1;
-    if (selected && focus) tab.focus();
-  });
-  const panel = document.getElementById('audience-panel');
-  panel.setAttribute('aria-labelledby', `tab-${name}`);
-  document.getElementById('audience-kicker').textContent = data.kicker;
-  document.getElementById('audience-title').innerHTML = data.title;
-  document.getElementById('audience-description').textContent = data.description;
-  document.getElementById('audience-benefits').replaceChildren(...data.benefits.map(value => {
-    const li = document.createElement('li'); li.textContent = value; return li;
-  }));
-  document.getElementById('audience-link').innerHTML = `${data.action} <span aria-hidden="true">↗</span>`;
-  document.querySelector('.art-person strong').textContent = data.card;
-  document.querySelector('.art-person small').textContent = data.sub;
+  return true;
 }
-tabs.forEach((tab, index) => {
-  tab.addEventListener('click', () => activateAudience(tab.dataset.audience));
-  tab.addEventListener('keydown', event => {
-    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
-    event.preventDefault();
-    const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
-    activateAudience(tabs[next].dataset.audience, true);
-  });
-});
-
-const menuToggle = document.querySelector('.menu-toggle');
-const mainNav = document.querySelector('.main-nav');
-menuToggle.addEventListener('click', () => {
-  const expanded = menuToggle.getAttribute('aria-expanded') === 'true';
-  menuToggle.setAttribute('aria-expanded', String(!expanded));
-  menuToggle.setAttribute('aria-label', expanded ? 'Open menu' : 'Close menu');
-  mainNav.classList.toggle('is-open', !expanded);
-});
-mainNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
-  mainNav.classList.remove('is-open');
-  menuToggle.setAttribute('aria-expanded', 'false');
-  menuToggle.setAttribute('aria-label', 'Open menu');
-}));
-
-document.getElementById('year').textContent = new Date().getFullYear();
-const premium = document.getElementById('premium');
-const downPayment = document.getElementById('down-payment');
-const installments = document.getElementById('installments');
-const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 });
-function updateCalculator() {
-  const amount = Math.max(0, Math.min(10000000, Number(premium.value) || 0));
-  const upfront = amount * Number(downPayment.value) / 100;
-  const balance = amount - upfront;
-  document.getElementById('upfront-value').textContent = money.format(upfront);
-  document.getElementById('balance-value').textContent = money.format(balance);
-  document.getElementById('installment-value').textContent = money.format(balance / Number(installments.value));
+function gotoStep(n){
+  stepOne.hidden=n!==1; stepTwo.hidden=n!==2;
+  stepIndicator.textContent='STEP 0'+n+' / 02';
+  progressOne.classList.toggle('is-active',n===1);
+  progressTwo.classList.toggle('is-active',n===2);
+  clearMessage();
+  const focusable=n===1?document.getElementById('policy-type'):document.getElementById('contact-name');
+  focusable.focus({preventScroll:true});
+  document.getElementById('request').scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});
 }
-[premium, downPayment, installments].forEach(el => el.addEventListener('input', updateCalculator));
-updateCalculator();
-
-const inquiry = document.getElementById('inquiry-form');
-inquiry.addEventListener('submit', event => {
+document.getElementById('continue-button').addEventListener('click',()=>{if(validFields(stepOne)) gotoStep(2);});
+document.getElementById('back-button').addEventListener('click',()=>gotoStep(1));
+for (const link of document.querySelectorAll('[data-policy]')){
+  link.addEventListener('click',()=>{document.getElementById('policy-type').value=link.dataset.policy;});
+}
+for (const link of document.querySelectorAll('[data-role]')){
+  link.addEventListener('click',()=>{document.getElementById('contact-role').value=link.dataset.role;});
+}
+function cleaned(input,max){return String(input||'').replace(/[\r\n\t]+/g,' ').trim().slice(0,max);}
+form.addEventListener('submit',event=>{
   event.preventDefault();
-  if (!inquiry.reportValidity()) return;
-  const values = Object.fromEntries(new FormData(inquiry));
-  const subject = `AMCO Premium Finance inquiry: ${values.audience}`;
-  const body = [
-    'Hello AMCO team,', '',
-    `Name: ${values.name}`,
-    `Email: ${values.email}`,
-    `Organization: ${values.organization || 'Not provided'}`,
-    `Interested as: ${values.audience}`, '',
-    'Message:', values.message, '',
-    'Sent from the AMCO website inquiry form.'
-  ].join('\n');
-  const url = `mailto:info@amcopremium.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  document.getElementById('form-status').textContent = 'Your email application should open with a prepared message. Please send it there to contact AMCO.';
-  window.location.href = url;
+  if(!validFields(stepOne)){gotoStep(1);return;}
+  if(!validFields(stepTwo))return;
+  const values=Object.fromEntries(new FormData(form).entries());
+  const money=Number(values.premium);
+  if(!Number.isFinite(money)||money<=0){gotoStep(1);status.textContent='Enter a valid positive premium amount.';status.classList.add('is-error');return;}
+  const lines=[
+    'Hello AMCO team,','',
+    'I would like to request a preliminary insurance premium financing review.','',
+    'POLICY DETAILS',
+    'Policy type: '+cleaned(values.policyType,80),
+    'State: '+cleaned(values.policyState,35),
+    'Estimated total premium: '+new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(money),
+    'Effective date: '+cleaned(values.effectiveDate,20),'',
+    'CONTACT DETAILS',
+    'Contact: '+cleaned(values.contactName,100),
+    'Email: '+cleaned(values.email,160),
+    'Role: '+cleaned(values.contactRole,70),
+    'Organization: '+cleaned(values.organization,140),
+    'Additional question: '+cleaned(values.note,350),'',
+    'This is an inquiry, not a formal application or financing approval.','',
+    'Prepared through the AMCO website. No request has been submitted automatically.'
+  ];
+  const subject='AMCO premium finance inquiry: '+cleaned(values.policyType,65);
+  const url='mailto:info@amcopremium.com?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(lines.join('\n'));
+  status.textContent='Your email app should open with a prepared request. Review it, then send it to AMCO. Nothing has been submitted automatically.';
+  status.classList.remove('is-error');
+  window.location.href=url;
 });
-
